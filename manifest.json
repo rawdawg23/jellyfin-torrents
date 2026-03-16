@@ -11,10 +11,10 @@
       {
         "version": "1.0.0.0",
         "targetAbi": "10.9.0.0",
-        "sourceUrl": "https://github.com/rawdawg23/jellyfin-torrents/releases/download/build-23158278564/Jellyfin.Plugin.TorrentLinks_1.0.0.0.zip",
-        "checksum": "632608c4c499b03933a82e658ac359fd",
+        "sourceUrl": "https://github.com/rawdawg23/jellyfin-torrents/releases/download/build-23158707504/Jellyfin.Plugin.TorrentLinks_1.0.0.0.zip",
+        "checksum": "2bde8dd589b0c13eb032818327ff2b54",
         "changelog": "Release 1.0.0.0",
-        "timestamp": "2026-03-16T17:56:45Z"
+        "timestamp": "2026-03-16T18:07:04Z"
       }
     ]
   }
