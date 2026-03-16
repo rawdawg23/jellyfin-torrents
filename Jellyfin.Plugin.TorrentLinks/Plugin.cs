@@ -49,7 +49,7 @@ public class Plugin : BasePlugin, IHasWebPages, IHasPluginConfiguration
     }
 
     /// <inheritdoc />
-    public override string Description => "Adds external links to search on torrent and stream indexer sites for movies and series. To set up (Torbox, DMM, sites, quality limits): open the Jellyfin Dashboard in a web browser → Plugins → find this plugin and click Configure, or use the Setup item under the Plugins menu.";
+    public override string Description => "Adds external links to search on torrent and stream indexer sites for movies and series. SETUP (no Configure button?): In your browser, open your Jellyfin server URL and add this path: /web/configurationpage.html?name=Torrent%20%26%20Stream%20Links — e.g. https://yourserver/web/configurationpage.html?name=Torrent%20%26%20Stream%20Links — to open the plugin setup page.";
 
     /// <inheritdoc />
     public IEnumerable<PluginPageInfo> GetPages()
@@ -59,7 +59,7 @@ public class Plugin : BasePlugin, IHasWebPages, IHasPluginConfiguration
             new PluginPageInfo
             {
                 Name = Name,
-                DisplayName = "Setup",
+                DisplayName = "Configuration",
                 EmbeddedResourcePath = string.Format(
                     CultureInfo.InvariantCulture,
                     "{0}.Configuration.configPage.html",
