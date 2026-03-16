@@ -80,7 +80,6 @@ public class TorboxLibraryWriter
             return null;
         }
 
-        var isEpisode = season.HasValue && episode.HasValue;
         var safeTitle = SanitizeFileName(title);
         var yearSuffix = year.HasValue ? $" ({year.Value})" : string.Empty;
         string dirPath;
