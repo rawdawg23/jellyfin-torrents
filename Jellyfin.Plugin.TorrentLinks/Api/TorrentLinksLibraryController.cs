@@ -12,11 +12,27 @@ namespace Jellyfin.Plugin.TorrentLinks.Api;
 [Route("TorrentLinksLibrary")]
 public class TorrentLinksLibraryController : ControllerBase
 {
+    private const string ConfigPagePath = "/web/configurationpage.html";
+    private const string ConfigPageQuery = "?name=Torrent%20%26%20Stream%20Links";
+
     private readonly TorboxLibraryWriter _writer;
 
     public TorrentLinksLibraryController(TorboxLibraryWriter writer)
     {
         _writer = writer;
+    }
+
+    /// <summary>
+    /// Returns the full setup URL for this plugin using the current request host (auto-detected).
+    /// </summary>
+    [HttpGet("SetupUrl")]
+    [Produces("application/json")]
+    public ActionResult<SetupUrlResponse> GetSetupUrl()
+    {
+        var scheme = Request.Scheme;
+        var host = Request.Host.Value ?? "localhost";
+        var setupUrl = $"{scheme}://{host}{ConfigPagePath}{ConfigPageQuery}";
+        return Ok(new SetupUrlResponse { SetupUrl = setupUrl });
     }
 
     /// <summary>
@@ -83,4 +99,13 @@ public class AddToLibraryResponse
 
     /// <summary>Error or info message.</summary>
     public string? Message { get; set; }
+}
+
+/// <summary>
+/// Response from GetSetupUrl (auto-detected Jellyfin setup URL).
+/// </summary>
+public class SetupUrlResponse
+{
+    /// <summary>Full URL to the plugin configuration page.</summary>
+    public string SetupUrl { get; set; } = string.Empty;
 }

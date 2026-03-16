@@ -18,6 +18,12 @@
             <img src="https://raw.githubusercontent.com/rawdawg23/jellyfin-torrents/main/assets/plugin-poster.svg" alt="Electric Torbox — EP-GROUP" style="max-width:320px;height:auto;" />
         </div>
         <h2>Torrent &amp; Stream Links — Setup</h2>
+        <div id="SetupUrlBox" class="auth-box" style="margin-bottom:16px;">
+            <strong>Setup URL (bookmark this)</strong>
+            <p class="fieldDescription" style="margin:6px 0;">Use this link when the Configure button does not show in the desktop or mobile app:</p>
+            <p id="SetupUrlDisplay" style="word-break:break-all;margin:8px 0;padding:8px;background:rgba(0,0,0,0.2);border-radius:4px;font-family:monospace;"></p>
+            <button type="button" class="btn btn-secondary" id="CopySetupUrlBtn">Copy URL</button>
+        </div>
         <p class="fieldDescription">Configure external search links and stream playback (Torbox, DMM, or custom API). Set quality limits below to cap resolution and file size inside Jellyfin.</p>
 
         <div class="auth-box">
@@ -214,6 +220,21 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
+            // Auto-detect setup URL from current page (Jellyfin server URL)
+            var setupUrl = window.location.origin + window.location.pathname + (window.location.search || '');
+            var setupUrlEl = document.getElementById('SetupUrlDisplay');
+            var copyBtn = document.getElementById('CopySetupUrlBtn');
+            if (setupUrlEl) setupUrlEl.textContent = setupUrl;
+            if (copyBtn) {
+                copyBtn.addEventListener('click', function () {
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(setupUrl).then(function () { copyBtn.textContent = 'Copied!'; setTimeout(function () { copyBtn.textContent = 'Copy URL'; }, 2000); });
+                    } else {
+                        var ta = document.createElement('textarea'); ta.value = setupUrl; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); copyBtn.textContent = 'Copied!'; setTimeout(function () { copyBtn.textContent = 'Copy URL'; }, 2000);
+                    }
+                });
+            }
+
             document.getElementById('SaveBtn').addEventListener('click', function () {
                 Dashboard.showLoadingMsg();
                 ApiClient.getPluginConfiguration(TorrentLinksConfig.pluginUniqueId).then(function (config) {
