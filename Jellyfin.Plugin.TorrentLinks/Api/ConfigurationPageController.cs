@@ -1,5 +1,5 @@
 using System.IO;
-using System.Reflection;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Jellyfin.Plugin.TorrentLinks.Api;
@@ -27,15 +27,25 @@ public class ConfigurationPageController : ControllerBase
             return NotFound();
         }
 
-        var assembly = typeof(Jellyfin.Plugin.TorrentLinks.Plugin).Assembly;
-        using var stream = assembly.GetManifestResourceStream(ResourceName);
-        if (stream == null)
+        try
         {
-            return NotFound();
-        }
+            var assembly = typeof(ConfigurationPageController).Assembly;
+            var resourceNames = assembly.GetManifestResourceNames();
+            var resourceName = resourceNames.FirstOrDefault(n => n.EndsWith("configPage.html", StringComparison.OrdinalIgnoreCase)) ?? ResourceName;
 
-        using var reader = new StreamReader(stream);
-        var html = reader.ReadToEnd();
-        return Content(html, "text/html; charset=utf-8");
+            using var stream = assembly.GetManifestResourceStream(resourceName);
+            if (stream == null)
+            {
+                return NotFound();
+            }
+
+            using var reader = new StreamReader(stream);
+            var html = reader.ReadToEnd();
+            return Content(html, "text/html; charset=utf-8");
+        }
+        catch
+        {
+            return StatusCode(500);
+        }
     }
 }
