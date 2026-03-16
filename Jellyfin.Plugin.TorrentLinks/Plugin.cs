@@ -59,10 +59,14 @@ public class Plugin : BasePlugin, IHasWebPages, IHasPluginConfiguration
             new PluginPageInfo
             {
                 Name = Name,
+                DisplayName = "Setup",
                 EmbeddedResourcePath = string.Format(
                     CultureInfo.InvariantCulture,
                     "{0}.Configuration.configPage.html",
-                    GetType().Namespace)
+                    GetType().Namespace),
+                EnableInMainMenu = true,
+                MenuSection = "Plugins",
+                MenuIcon = "settings"
             }
         ];
     }

@@ -6,6 +6,7 @@
     "overview": "Add external links to torrent and stream search sites for movies and series.",
     "owner": "jellyfin",
     "category": "General",
+    "imageUrl": "https://raw.githubusercontent.com/rawdawg23/jellyfin-torrents/main/assets/plugin-poster.svg",
     "versions": []
   }
 ]
