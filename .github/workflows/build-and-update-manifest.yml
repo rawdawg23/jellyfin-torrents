@@ -23,10 +23,11 @@ jobs:
       - name: Get version from csproj
         id: version
         run: |
-          VERSION=$(grep '<Version>' Jellyfin.Plugin.TorrentLinks/Jellyfin.Plugin.TorrentLinks.csproj | sed -n 's/.*<Version>\([^<]*\)<\/Version>.*/\1/p' | tr -d ' \r\n')
+          # Read only from the plugin csproj (not Directory.Build.props)
+          VERSION=$(sed -n 's/.*<Version>\([^<]*\)<\/Version>.*/\1/p' Jellyfin.Plugin.TorrentLinks/Jellyfin.Plugin.TorrentLinks.csproj | head -1 | tr -d ' \r\n')
           [ -z "$VERSION" ] && VERSION="1.0.0.0"
-          # Use "latest" tag for push-triggered builds so it doesn't conflict with versioned releases
-          TAG="latest"
+          # Unique tag per run so we never conflict with existing tags/releases
+          TAG="build-${{ github.run_id }}"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
