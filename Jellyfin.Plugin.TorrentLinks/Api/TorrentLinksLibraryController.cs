@@ -12,7 +12,7 @@ namespace Jellyfin.Plugin.TorrentLinks.Api;
 [Route("TorrentLinksLibrary")]
 public class TorrentLinksLibraryController : ControllerBase
 {
-    private const string ConfigPagePath = "/web/configurationpage.html";
+    private const string ConfigPagePath = "/web/#/configurationpage";
     private const string ConfigPageQuery = "?name=Torrent%20%26%20Stream%20Links";
 
     private readonly TorboxLibraryWriter _writer;

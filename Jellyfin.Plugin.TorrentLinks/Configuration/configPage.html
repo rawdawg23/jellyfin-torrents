@@ -13,7 +13,7 @@
     </style>
 </head>
 <body>
-    <div id="TorrentLinksConfigPage" class="section">
+    <div id="TorrentLinksConfigPage" data-role="page" class="page type-interior pluginConfigurationPage section">
         <div class="plugin-poster" style="text-align:center;margin-bottom:20px;">
             <img src="https://raw.githubusercontent.com/rawdawg23/jellyfin-torrents/main/assets/plugin-poster.svg" alt="Electric Torbox — EP-GROUP" style="max-width:320px;height:auto;" />
         </div>
@@ -219,12 +219,45 @@
             return sites;
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            // Auto-detect setup URL from current page (Jellyfin server URL)
-            var setupUrl = window.location.origin + window.location.pathname + (window.location.search || '');
+        function runWhenShown() {
             var setupUrlEl = document.getElementById('SetupUrlDisplay');
-            var copyBtn = document.getElementById('CopySetupUrlBtn');
+            if (setupUrlEl) setupUrlEl.textContent = window.location.href;
+            var Dashboard = window.Dashboard || (window.parent && window.parent.Dashboard);
+            var ApiClient = window.ApiClient || (window.parent && window.parent.ApiClient);
+            if (Dashboard && ApiClient) {
+                Dashboard.showLoadingMsg();
+                ApiClient.getPluginConfiguration(TorrentLinksConfig.pluginUniqueId).then(function (config) {
+                    if (document.getElementById('Enabled')) document.getElementById('Enabled').checked = config.Enabled !== false;
+                    if (document.getElementById('EnableStreamPlayback')) document.getElementById('EnableStreamPlayback').checked = config.EnableStreamPlayback === true;
+                    if (document.getElementById('StreamApiUrl')) document.getElementById('StreamApiUrl').value = config.StreamApiUrl || '';
+                    if (document.getElementById('StreamApiKey')) document.getElementById('StreamApiKey').value = config.StreamApiKey || '';
+                    if (document.getElementById('UseTorbox')) document.getElementById('UseTorbox').checked = config.UseTorbox === true;
+                    if (document.getElementById('TorboxApiKey')) document.getElementById('TorboxApiKey').value = config.TorboxApiKey || '';
+                    if (document.getElementById('TorboxApiVersion')) document.getElementById('TorboxApiVersion').value = config.TorboxApiVersion || 'v1';
+                    if (document.getElementById('UseDmm')) document.getElementById('UseDmm').checked = config.UseDmm === true;
+                    if (document.getElementById('DmmBaseUrl')) document.getElementById('DmmBaseUrl').value = config.DmmBaseUrl || 'https://debridmediamanager.com';
+                    if (document.getElementById('DmmUserId')) document.getElementById('DmmUserId').value = config.DmmUserId || '';
+                    if (document.getElementById('MaxResolution')) document.getElementById('MaxResolution').value = config.MaxResolution || '';
+                    if (document.getElementById('MaxMovieSizeGb')) document.getElementById('MaxMovieSizeGb').value = (config.MaxMovieSizeGb && config.MaxMovieSizeGb > 0) ? config.MaxMovieSizeGb : '';
+                    if (document.getElementById('MaxEpisodeSizeGb')) document.getElementById('MaxEpisodeSizeGb').value = (config.MaxEpisodeSizeGb && config.MaxEpisodeSizeGb > 0) ? config.MaxEpisodeSizeGb : '';
+                    var moviesPath = config.TorboxLibraryPathMovies || ''; var seriesPath = config.TorboxLibraryPathSeries || '';
+                    if (!moviesPath && !seriesPath && config.TorboxLibraryPath) { moviesPath = seriesPath = config.TorboxLibraryPath; }
+                    if (document.getElementById('TorboxLibraryPathMovies')) document.getElementById('TorboxLibraryPathMovies').value = moviesPath;
+                    if (document.getElementById('TorboxLibraryPathSeries')) document.getElementById('TorboxLibraryPathSeries').value = seriesPath;
+                    renderSites(config.Sites || []);
+                    Dashboard.hideLoadingMsg();
+                });
+            }
+        }
+        var root = document.getElementById('TorrentLinksConfigPage');
+        if (root) {
+            root.addEventListener('pageshow', runWhenShown);
+        }
+        function bindHandlers() {
+            var setupUrl = window.location.href;
+            var setupUrlEl = document.getElementById('SetupUrlDisplay');
             if (setupUrlEl) setupUrlEl.textContent = setupUrl;
+            var copyBtn = document.getElementById('CopySetupUrlBtn');
             if (copyBtn) {
                 copyBtn.addEventListener('click', function () {
                     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -234,8 +267,8 @@
                     }
                 });
             }
-
-            document.getElementById('SaveBtn').addEventListener('click', function () {
+            var saveBtn = document.getElementById('SaveBtn');
+            if (saveBtn) saveBtn.addEventListener('click', function () {
                 Dashboard.showLoadingMsg();
                 ApiClient.getPluginConfiguration(TorrentLinksConfig.pluginUniqueId).then(function (config) {
                     config.Enabled = document.getElementById('Enabled').checked;
@@ -260,15 +293,14 @@
                     Dashboard.hideLoadingMsg();
                 });
             });
-
-            document.getElementById('AddSiteBtn').addEventListener('click', function () {
+            var addSiteBtn = document.getElementById('AddSiteBtn');
+            if (addSiteBtn) addSiteBtn.addEventListener('click', function () {
                 ApiClient.getPluginConfiguration(TorrentLinksConfig.pluginUniqueId).then(function (config) {
                     config.Sites = config.Sites || [];
                     config.Sites.push({ Name: '', UrlFormat: '', Enabled: true });
                     renderSites(config.Sites);
                 });
             });
-
             function doOneClickMount(pathInputId, resultElId, collectionType, libraryName) {
                 var pathInput = document.getElementById(pathInputId);
                 var path = pathInput && pathInput.value.trim();
@@ -290,14 +322,10 @@
                     resultEl.style.color = '#e74c3c';
                 });
             }
-            document.getElementById('OneClickMountMoviesBtn').addEventListener('click', function () {
-                doOneClickMount('TorboxLibraryPathMovies', 'OneClickMountMoviesResult', 'movies', 'Torbox Movies');
-            });
-            document.getElementById('OneClickMountSeriesBtn').addEventListener('click', function () {
-                doOneClickMount('TorboxLibraryPathSeries', 'OneClickMountSeriesResult', 'tvshows', 'Torbox Series');
-            });
-
-            document.getElementById('AddToLibraryBtn').addEventListener('click', function () {
+            var mBtn = document.getElementById('OneClickMountMoviesBtn'); if (mBtn) mBtn.addEventListener('click', function () { doOneClickMount('TorboxLibraryPathMovies', 'OneClickMountMoviesResult', 'movies', 'Torbox Movies'); });
+            var sBtn = document.getElementById('OneClickMountSeriesBtn'); if (sBtn) sBtn.addEventListener('click', function () { doOneClickMount('TorboxLibraryPathSeries', 'OneClickMountSeriesResult', 'tvshows', 'Torbox Series'); });
+            var addLibBtn = document.getElementById('AddToLibraryBtn');
+            if (addLibBtn) addLibBtn.addEventListener('click', function () {
                 var title = document.getElementById('AddLibTitle') && document.getElementById('AddLibTitle').value.trim();
                 var resultEl = document.getElementById('AddToLibraryResult');
                 if (!title) {
@@ -335,42 +363,22 @@
                 });
             });
 
-            document.getElementById('TorrentLinksConfigPage').addEventListener('pageshow', function () {
-                Dashboard.showLoadingMsg();
-                ApiClient.getPluginConfiguration(TorrentLinksConfig.pluginUniqueId).then(function (config) {
-                    document.getElementById('Enabled').checked = config.Enabled !== false;
-                    document.getElementById('EnableStreamPlayback').checked = config.EnableStreamPlayback === true;
-                    if (document.getElementById('StreamApiUrl')) document.getElementById('StreamApiUrl').value = config.StreamApiUrl || '';
-                    if (document.getElementById('StreamApiKey')) document.getElementById('StreamApiKey').value = config.StreamApiKey || '';
-                    if (document.getElementById('UseTorbox')) document.getElementById('UseTorbox').checked = config.UseTorbox === true;
-                    if (document.getElementById('TorboxApiKey')) document.getElementById('TorboxApiKey').value = config.TorboxApiKey || '';
-                    if (document.getElementById('TorboxApiVersion')) document.getElementById('TorboxApiVersion').value = config.TorboxApiVersion || 'v1';
-                    if (document.getElementById('UseDmm')) document.getElementById('UseDmm').checked = config.UseDmm === true;
-                    if (document.getElementById('DmmBaseUrl')) document.getElementById('DmmBaseUrl').value = config.DmmBaseUrl || 'https://debridmediamanager.com';
-                    if (document.getElementById('DmmUserId')) document.getElementById('DmmUserId').value = config.DmmUserId || '';
-                    if (document.getElementById('MaxResolution')) document.getElementById('MaxResolution').value = config.MaxResolution || '';
-                    if (document.getElementById('MaxMovieSizeGb')) document.getElementById('MaxMovieSizeGb').value = (config.MaxMovieSizeGb && config.MaxMovieSizeGb > 0) ? config.MaxMovieSizeGb : '';
-                    if (document.getElementById('MaxEpisodeSizeGb')) document.getElementById('MaxEpisodeSizeGb').value = (config.MaxEpisodeSizeGb && config.MaxEpisodeSizeGb > 0) ? config.MaxEpisodeSizeGb : '';
-                    var moviesPath = config.TorboxLibraryPathMovies || '';
-                    var seriesPath = config.TorboxLibraryPathSeries || '';
-                    if (!moviesPath && !seriesPath && config.TorboxLibraryPath) {
-                        moviesPath = seriesPath = config.TorboxLibraryPath;
-                    }
-                    if (document.getElementById('TorboxLibraryPathMovies')) document.getElementById('TorboxLibraryPathMovies').value = moviesPath;
-                    if (document.getElementById('TorboxLibraryPathSeries')) document.getElementById('TorboxLibraryPathSeries').value = seriesPath;
-                    renderSites(config.Sites || []);
-                    document.getElementById('TorrentLinksConfigPage').addEventListener('click', function (e) {
-                        if (e.target.classList.contains('remove-site')) {
-                            var idx = parseInt(e.target.getAttribute('data-index'), 10);
-                            var sites = collectSites();
-                            sites.splice(idx, 1);
-                            renderSites(sites);
-                        }
-                    });
-                    Dashboard.hideLoadingMsg();
-                });
+            var configPage = document.getElementById('TorrentLinksConfigPage');
+            if (configPage) configPage.addEventListener('click', function (e) {
+                if (e.target.classList.contains('remove-site')) {
+                    var idx = parseInt(e.target.getAttribute('data-index'), 10);
+                    var sites = collectSites();
+                    sites.splice(idx, 1);
+                    renderSites(sites);
+                }
             });
-        });
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', bindHandlers);
+        } else {
+            setTimeout(bindHandlers, 0);
+        }
+        setTimeout(runWhenShown, 0);
     </script>
 </body>
 </html>

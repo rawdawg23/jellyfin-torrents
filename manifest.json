@@ -2,8 +2,8 @@
   {
     "guid": "a7b8c9d0-e1f2-3456-7890-abcdef123456",
     "name": "Torrent & Stream Links",
-    "description": "Adds external links on media item pages (movies, series, episodes) to search on configurable torrent and stream indexer sites.",
-    "overview": "Add external links to torrent and stream search sites. Setup (Torbox, DMM, quality): use Dashboard in a browser → Plugins → Configure.",
+    "description": "Adds external links on media item pages (movies, series, episodes) to search on configurable torrent and stream indexer sites. If you don't see a Configure button, open the setup page directly: add this path to your Jellyfin server URL — /web/#/configurationpage?name=Torrent%20%26%20Stream%20Links (e.g. https://yourserver:8096/web/#/configurationpage?name=Torrent%20%26%20Stream%20Links).",
+    "overview": "External links to torrent and stream search sites; optional Torbox/DMM stream playback. Setup: open in browser — /web/#/configurationpage?name=Torrent%20%26%20Stream%20Links (add your Jellyfin server URL in front). Or call GET /TorrentLinksLibrary/SetupUrl for the full URL.",
     "owner": "jellyfin",
     "category": "General",
     "imageUrl": "https://raw.githubusercontent.com/rawdawg23/jellyfin-torrents/main/assets/plugin-poster.svg",

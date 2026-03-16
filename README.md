@@ -17,16 +17,15 @@ Adds **external links** on movie and series detail pages in Jellyfin so you can 
 
 ## Installation
 
-### Install from plugin dashboard (add repo, then install)
+### Repo install (recommended)
 
-1. Push this repo to GitHub and create at least one **Release** (e.g. tag `v1.0.0`) so the manifest gets a downloadable version.
-2. In Jellyfin open **Dashboard → Plugins → Repositories** and add your manifest URL:
+1. In Jellyfin go to **Dashboard → Plugins → Repositories**.
+2. Click **Add** and paste this repository URL:
    ```
-   https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/manifest.json
+   https://raw.githubusercontent.com/rawdawg23/jellyfin-torrents/main/manifest.json
    ```
-   Use your GitHub username and repo name (e.g. `https://raw.githubusercontent.com/me/jellyfin-addon/main/manifest.json`). Use `master` instead of `main` if that’s your default branch.
-3. Open **Dashboard → Plugins → Catalog**. Find **Torrent & Stream Links** and click **Install**.
-4. Restart Jellyfin if prompted, then configure under **Dashboard → Plugins**.
+3. Save, then open **Dashboard → Plugins → Catalog**. Find **Torrent & Stream Links** and click **Install**.
+4. Restart Jellyfin if prompted. Configure under **Dashboard → Plugins → Torrent & Stream Links**.
 
 ### Manual install
 

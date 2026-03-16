@@ -49,7 +49,7 @@ public class Plugin : BasePlugin, IHasWebPages, IHasPluginConfiguration
     }
 
     /// <inheritdoc />
-    public override string Description => "Adds external links to search on torrent and stream indexer sites for movies and series. SETUP: Open the setup page once (path: /web/configurationpage.html?name=Torrent%20%26%20Stream%20Links); the page auto-detects your Jellyfin URL and shows a bookmarkable link. Or call GET /TorrentLinksLibrary/SetupUrl to get the setup URL.";
+    public override string Description => "Adds external links to search on torrent and stream indexer sites for movies and series. SETUP: Open /web/#/configurationpage?name=Torrent%20%26%20Stream%20Links (add your Jellyfin server URL in front). Or call GET /TorrentLinksLibrary/SetupUrl for the full URL.";
 
     /// <inheritdoc />
     public IEnumerable<PluginPageInfo> GetPages()
