@@ -1,0 +1,91 @@
+# Run on push to main so the manifest gets a version and the plugin shows in Jellyfin Catalog.
+name: Build and update manifest
+
+on:
+  push:
+    branches: [main, master]
+
+jobs:
+  build-and-update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Get version from csproj
+        id: version
+        run: |
+          VERSION=$(grep '<Version>' Jellyfin.Plugin.TorrentLinks/Jellyfin.Plugin.TorrentLinks.csproj | sed 's/.*<Version>\(.*\)<\/Version>.*/\1/' | tr -d ' \r\n')
+          # Tag e.g. v1.0.0 (drop last segment if 4-part)
+          TAG="v${VERSION%.*}"
+          [ -z "$TAG" ] || [ "$TAG" = "v" ] && TAG="v1.0.0"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Publish
+        run: dotnet publish Jellyfin.Plugin.TorrentLinks/Jellyfin.Plugin.TorrentLinks.csproj -c Release -o publish --no-self-contained
+
+      - name: Create plugin zip
+        run: |
+          cd publish
+          zip -r "../Jellyfin.Plugin.TorrentLinks_${{ steps.version.outputs.version }}.zip" .
+          cd ..
+
+      - name: Compute MD5
+        id: checksum
+        run: echo "checksum=$(md5sum Jellyfin.Plugin.TorrentLinks_${{ steps.version.outputs.version }}.zip | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+
+      - name: Create or update release and upload zip
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Jellyfin.Plugin.TorrentLinks_${{ steps.version.outputs.version }}.zip
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Release ${{ steps.version.outputs.tag }}
+          generate_release_notes: true
+          skip_duplicate: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update manifest.json
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          TAG: ${{ steps.version.outputs.tag }}
+          SOURCE_URL: "https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.tag }}/Jellyfin.Plugin.TorrentLinks_${{ steps.version.outputs.version }}.zip"
+          CHECKSUM: ${{ steps.checksum.outputs.checksum }}
+        run: |
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          export VERSION TAG SOURCE_URL CHECKSUM TIMESTAMP
+          node -e "
+            const fs = require('fs');
+            const m = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
+            const plugin = m.find(p => p.guid === 'a7b8c9d0-e1f2-3456-7890-abcdef123456') || m[0];
+            const ver = {
+              version: process.env.VERSION,
+              targetAbi: '10.9.0.0',
+              sourceUrl: process.env.SOURCE_URL,
+              checksum: process.env.CHECKSUM,
+              changelog: 'Release ' + process.env.VERSION,
+              timestamp: process.env.TIMESTAMP
+            };
+            plugin.versions = plugin.versions || [];
+            const i = plugin.versions.findIndex(v => v.version === ver.version);
+            if (i >= 0) plugin.versions[i] = ver; else plugin.versions.unshift(ver);
+            fs.writeFileSync('manifest.json', JSON.stringify(m, null, 2));
+          "
+
+      - name: Commit and push manifest
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add manifest.json
+          git diff --staged --quiet || (git commit -m "chore: update manifest ${{ steps.version.outputs.tag }}" && git push)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
