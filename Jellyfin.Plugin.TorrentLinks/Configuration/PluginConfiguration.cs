@@ -85,6 +85,21 @@ public class PluginConfiguration : BasePluginConfiguration
     public string TorboxApiVersion { get; set; } = "v1";
 
     /// <summary>
+    /// Folder path for movies .strm files. Add this folder as a Movies library in Jellyfin. Leave empty to disable.
+    /// </summary>
+    public string TorboxLibraryPathMovies { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Folder path for TV series .strm files. Add this folder as a TV library in Jellyfin. Leave empty to disable.
+    /// </summary>
+    public string TorboxLibraryPathSeries { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Legacy single folder path; used as fallback if TorboxLibraryPathMovies or TorboxLibraryPathSeries is empty.
+    /// </summary>
+    public string TorboxLibraryPath { get; set; } = string.Empty;
+
+    /// <summary>
     /// Gets or sets whether to use Debrid Media Manager (https://debridmediamanager.com) for stream resolution.
     /// Log in at DMM to get your User ID for the Stremio addon URL.
     /// </summary>

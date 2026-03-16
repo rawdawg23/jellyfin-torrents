@@ -53,6 +53,7 @@ Adds **external links** on movie and series detail pages in Jellyfin so you can 
   - **Torbox**: Check **Use Torbox** and enter your **Torbox API key**. Quality limits apply to Torbox stream selection.
   - **Debrid Media Manager**: Check **Use DMM**, set **DMM base URL** and your **DMM User ID** (from DMM after login).
   - **Custom API**: Set **Stream API URL** with placeholders; response must be JSON with `url` or `streamUrl`.
+- **Torbox library (mounts)**: Set **Movies mount path** and/or **Series mount path** to folders on the server. The plugin writes **.strm** files (and optional .nfo) there when you use **Add to library now**—movies go to the movies path; entries with Season/Episode go to the series path. Use **Add movies library (1 click)** and **Add TV library (1 click)** to add each folder as a Jellyfin library.
 - **Sites**: Edit the list of torrent/stream search sites (name, URL format, enabled). Example URL format: `https://example.com/search?q={encoded}`.
 
 ## Default sites (examples)

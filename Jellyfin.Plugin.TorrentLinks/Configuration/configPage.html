@@ -100,6 +100,51 @@
             </div>
         </div>
 
+        <div class="setup-section" style="border:1px solid rgba(100,150,200,0.4);">
+            <h3>Set up mounts (Torbox library)</h3>
+            <p class="fieldDescription">Use separate folders for movies and for TV series. Each folder becomes a Jellyfin library. Steps:</p>
+            <ol class="fieldDescription" style="margin:10px 0 14px 20px;padding:0;">
+                <li style="margin-bottom:6px;"><strong>Step 1.</strong> Enter <strong>Movies mount path</strong> and/or <strong>Series mount path</strong> below (folders on the Jellyfin server).</li>
+                <li style="margin-bottom:6px;"><strong>Step 2.</strong> Click <strong>Save</strong> at the bottom of this page.</li>
+                <li style="margin-bottom:6px;"><strong>Step 3.</strong> <strong>1-Click virtual mount:</strong> For each path, click <strong>Add movies library (1 click)</strong> or <strong>Add TV library (1 click)</strong> to add that folder as a Jellyfin library.</li>
+                <li><strong>Step 4.</strong> Use <strong>Add to library now</strong> to add items. Movies go to the movies path; if you fill Season/Episode, they go to the series path.</li>
+            </ol>
+            <div class="fieldRow">
+                <label class="block">Movies mount path</label>
+                <input type="text" id="TorboxLibraryPathMovies" placeholder="e.g. C:\Jellyfin\TorboxMovies or /media/torbox-movies" style="width:100%;max-width:500px;" />
+                <div class="fieldDescription">Server path for movie .strm files. Leave empty to disable.</div>
+            </div>
+            <div class="fieldRow" style="margin-top:8px;">
+                <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+                    <button type="button" class="btn btn-primary" id="OneClickMountMoviesBtn">Add movies library (1 click)</button>
+                </div>
+                <div id="OneClickMountMoviesResult" class="fieldDescription" style="margin-top:4px;"></div>
+            </div>
+            <div class="fieldRow" style="margin-top:14px;">
+                <label class="block">Series mount path</label>
+                <input type="text" id="TorboxLibraryPathSeries" placeholder="e.g. C:\Jellyfin\TorboxSeries or /media/torbox-series" style="width:100%;max-width:500px;" />
+                <div class="fieldDescription">Server path for TV .strm files. Leave empty to disable.</div>
+            </div>
+            <div class="fieldRow" style="margin-top:8px;">
+                <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+                    <button type="button" class="btn btn-primary" id="OneClickMountSeriesBtn">Add TV library (1 click)</button>
+                </div>
+                <div id="OneClickMountSeriesResult" class="fieldDescription" style="margin-top:4px;"></div>
+            </div>
+            <div class="fieldRow" style="margin-top:14px;">
+                <label class="block">Add to library now</label>
+                <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+                    <input type="text" id="AddLibTitle" placeholder="Title" style="width:180px;" />
+                    <input type="number" id="AddLibYear" placeholder="Year" min="1900" max="2100" style="width:80px;" />
+                    <input type="text" id="AddLibImdbId" placeholder="IMDb tt1234567" style="width:120px;" />
+                    <input type="number" id="AddLibSeason" placeholder="S" min="1" style="width:50px;" title="Season (TV)" />
+                    <input type="number" id="AddLibEpisode" placeholder="E" min="1" style="width:50px;" title="Episode (TV)" />
+                    <button type="button" class="btn btn-primary" id="AddToLibraryBtn">Add to library</button>
+                </div>
+                <div id="AddToLibraryResult" class="fieldDescription" style="margin-top:6px;"></div>
+            </div>
+        </div>
+
         <div class="setup-section">
             <h3>Debrid Media Manager</h3>
             <p class="fieldDescription">Use <a href="https://debridmediamanager.com" target="_blank" rel="noopener">Debrid Media Manager</a> (DMM). Log in at DMM, then copy your 12-character <strong>User ID</strong> from the Stremio addon install URL.</p>
@@ -185,6 +230,8 @@
                     config.MaxResolution = (document.getElementById('MaxResolution') && document.getElementById('MaxResolution').value) || '';
                     config.MaxMovieSizeGb = parseFloat(document.getElementById('MaxMovieSizeGb') && document.getElementById('MaxMovieSizeGb').value) || 0;
                     config.MaxEpisodeSizeGb = parseFloat(document.getElementById('MaxEpisodeSizeGb') && document.getElementById('MaxEpisodeSizeGb').value) || 0;
+                    config.TorboxLibraryPathMovies = (document.getElementById('TorboxLibraryPathMovies') && document.getElementById('TorboxLibraryPathMovies').value) || '';
+                    config.TorboxLibraryPathSeries = (document.getElementById('TorboxLibraryPathSeries') && document.getElementById('TorboxLibraryPathSeries').value) || '';
                     config.Sites = collectSites();
                     return ApiClient.updatePluginConfiguration(TorrentLinksConfig.pluginUniqueId, config);
                 }).then(function (result) {
@@ -198,6 +245,72 @@
                     config.Sites = config.Sites || [];
                     config.Sites.push({ Name: '', UrlFormat: '', Enabled: true });
                     renderSites(config.Sites);
+                });
+            });
+
+            function doOneClickMount(pathInputId, resultElId, collectionType, libraryName) {
+                var pathInput = document.getElementById(pathInputId);
+                var path = pathInput && pathInput.value.trim();
+                var resultEl = document.getElementById(resultElId);
+                if (!path) {
+                    resultEl.textContent = 'Enter the mount path above first.';
+                    resultEl.style.color = '#e74c3c';
+                    return;
+                }
+                resultEl.textContent = 'Adding library…';
+                resultEl.style.color = '';
+                var q = 'name=' + encodeURIComponent(libraryName) + '&collectionType=' + encodeURIComponent(collectionType) + '&refreshLibrary=true&paths=' + encodeURIComponent(path);
+                var url = ApiClient.getUrl('Library/VirtualFolders') + '?' + q;
+                ApiClient.ajax({ type: 'POST', url: url }).then(function () {
+                    resultEl.textContent = 'Library "' + libraryName + '" added. You can rename it in Dashboard → Libraries.';
+                    resultEl.style.color = '';
+                }).catch(function (err) {
+                    resultEl.textContent = 'Error: ' + (err.statusText || (err.responseJSON && err.responseJSON.Message) || err.message || 'Request failed. Ensure path exists on the server.');
+                    resultEl.style.color = '#e74c3c';
+                });
+            }
+            document.getElementById('OneClickMountMoviesBtn').addEventListener('click', function () {
+                doOneClickMount('TorboxLibraryPathMovies', 'OneClickMountMoviesResult', 'movies', 'Torbox Movies');
+            });
+            document.getElementById('OneClickMountSeriesBtn').addEventListener('click', function () {
+                doOneClickMount('TorboxLibraryPathSeries', 'OneClickMountSeriesResult', 'tvshows', 'Torbox Series');
+            });
+
+            document.getElementById('AddToLibraryBtn').addEventListener('click', function () {
+                var title = document.getElementById('AddLibTitle') && document.getElementById('AddLibTitle').value.trim();
+                var resultEl = document.getElementById('AddToLibraryResult');
+                if (!title) {
+                    resultEl.textContent = 'Enter a title.';
+                    return;
+                }
+                resultEl.textContent = 'Resolving and writing .strm…';
+                var yearEl = document.getElementById('AddLibYear');
+                var imdbEl = document.getElementById('AddLibImdbId');
+                var seasonEl = document.getElementById('AddLibSeason');
+                var episodeEl = document.getElementById('AddLibEpisode');
+                var payload = {
+                    Title: title,
+                    Year: yearEl && yearEl.value ? parseInt(yearEl.value, 10) : null,
+                    ImdbId: imdbEl && imdbEl.value.trim() ? imdbEl.value.trim() : null,
+                    Season: seasonEl && seasonEl.value ? parseInt(seasonEl.value, 10) : null,
+                    Episode: episodeEl && episodeEl.value ? parseInt(episodeEl.value, 10) : null
+                };
+                ApiClient.ajax({
+                    type: 'POST',
+                    url: ApiClient.getUrl('TorrentLinksLibrary/AddToLibrary'),
+                    data: JSON.stringify(payload),
+                    contentType: 'application/json'
+                }).then(function (r) {
+                    if (r.Success) {
+                        resultEl.textContent = 'Added: ' + (r.Path || '');
+                        resultEl.style.color = '';
+                    } else {
+                        resultEl.textContent = r.Message || 'Failed.';
+                        resultEl.style.color = '#e74c3c';
+                    }
+                }).catch(function (err) {
+                    resultEl.textContent = 'Error: ' + (err.statusText || err.message || 'Request failed');
+                    resultEl.style.color = '#e74c3c';
                 });
             });
 
@@ -217,6 +330,13 @@
                     if (document.getElementById('MaxResolution')) document.getElementById('MaxResolution').value = config.MaxResolution || '';
                     if (document.getElementById('MaxMovieSizeGb')) document.getElementById('MaxMovieSizeGb').value = (config.MaxMovieSizeGb && config.MaxMovieSizeGb > 0) ? config.MaxMovieSizeGb : '';
                     if (document.getElementById('MaxEpisodeSizeGb')) document.getElementById('MaxEpisodeSizeGb').value = (config.MaxEpisodeSizeGb && config.MaxEpisodeSizeGb > 0) ? config.MaxEpisodeSizeGb : '';
+                    var moviesPath = config.TorboxLibraryPathMovies || '';
+                    var seriesPath = config.TorboxLibraryPathSeries || '';
+                    if (!moviesPath && !seriesPath && config.TorboxLibraryPath) {
+                        moviesPath = seriesPath = config.TorboxLibraryPath;
+                    }
+                    if (document.getElementById('TorboxLibraryPathMovies')) document.getElementById('TorboxLibraryPathMovies').value = moviesPath;
+                    if (document.getElementById('TorboxLibraryPathSeries')) document.getElementById('TorboxLibraryPathSeries').value = seriesPath;
                     renderSites(config.Sites || []);
                     document.getElementById('TorrentLinksConfigPage').addEventListener('click', function (e) {
                         if (e.target.classList.contains('remove-site')) {

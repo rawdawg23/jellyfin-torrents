@@ -17,6 +17,7 @@
     <PackageReference Include="Jellyfin.Common" Version="10.11.6" />
     <PackageReference Include="Jellyfin.Controller" Version="10.11.6" />
     <PackageReference Include="Jellyfin.Model" Version="10.11.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="9.0.0" />
     <EmbeddedResource Include="Configuration\configPage.html" LogicalName="Jellyfin.Plugin.TorrentLinks.Configuration.configPage.html" />
   </ItemGroup>
 

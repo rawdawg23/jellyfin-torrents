@@ -49,7 +49,7 @@ public class Plugin : BasePlugin, IHasWebPages, IHasPluginConfiguration
     }
 
     /// <inheritdoc />
-    public override string Description => "Adds external links to search on torrent and stream indexer sites for movies and series.";
+    public override string Description => "Adds external links to search on torrent and stream indexer sites for movies and series. To set up (Torbox, DMM, sites, quality limits): open the Jellyfin Dashboard in a web browser → Plugins → find this plugin and click Configure, or use the Setup item under the Plugins menu.";
 
     /// <inheritdoc />
     public IEnumerable<PluginPageInfo> GetPages()

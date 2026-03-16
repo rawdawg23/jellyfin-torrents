@@ -1,3 +1,4 @@
+using Jellyfin.Plugin.TorrentLinks.Library;
 using Jellyfin.Plugin.TorrentLinks.Streaming;
 using MediaBrowser.Controller;
 using MediaBrowser.Controller.Library;
@@ -22,5 +23,6 @@ public class ServiceRegistrator : IPluginServiceRegistrator
         serviceCollection.AddSingleton<ApiStreamResolver>();
         serviceCollection.AddSingleton<IStreamResolver, CompositeStreamResolver>();
         serviceCollection.AddSingleton<IMediaSourceProvider, TorrentStreamMediaSourceProvider>();
+        serviceCollection.AddSingleton<TorboxLibraryWriter>();
     }
 }
