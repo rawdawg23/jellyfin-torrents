@@ -1,0 +1,11 @@
+[
+  {
+    "guid": "a7b8c9d0-e1f2-3456-7890-abcdef123456",
+    "name": "Torrent & Stream Links",
+    "description": "Adds external links on media item pages (movies, series, episodes) to search on configurable torrent and stream indexer sites.",
+    "overview": "Add external links to torrent and stream search sites for movies and series.",
+    "owner": "jellyfin",
+    "category": "General",
+    "versions": []
+  }
+]

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Torrent & Stream Links - Setup</title>
+    <style>
+        .setup-section { margin-bottom: 24px; padding: 16px; background: rgba(0,0,0,0.15); border-radius: 8px; }
+        .setup-section h3 { margin-top: 0; margin-bottom: 10px; }
+        .setup-section .fieldRow { margin-bottom: 12px; }
+        .setup-section label.block { display: block; margin-bottom: 4px; }
+        .setup-section input[type="number"] { width: 120px; }
+        .auth-box { margin-bottom: 20px; padding: 14px; background: rgba(30,60,90,0.25); border-radius: 8px; border: 1px solid rgba(100,150,200,0.3); }
+    </style>
+</head>
+<body>
+    <div id="TorrentLinksConfigPage" class="section">
+        <h2>Torrent &amp; Stream Links — Setup</h2>
+        <p class="fieldDescription">Configure external search links and stream playback (Torbox, DMM, or custom API). Set quality limits below to cap resolution and file size inside Jellyfin.</p>
+
+        <div class="auth-box">
+            <strong>Request auth via Torbox</strong>
+            <p class="fieldDescription" style="margin:6px 0;">Log in to Torbox and copy your API key from Settings to use Torbox stream playback.</p>
+            <a href="https://torbox.app" target="_blank" rel="noopener" class="btn btn-primary">Open Torbox to log in &amp; get API key</a>
+        </div>
+
+        <div class="setup-section">
+            <h3>General</h3>
+            <div class="checkboxList checkboxList-withDescription">
+                <label>
+                    <input type="checkbox" id="Enabled" />
+                    <span>Enable plugin</span>
+                </label>
+                <div class="fieldDescription">Show external search links on media item pages.</div>
+            </div>
+        </div>
+
+        <div class="setup-section">
+            <h3>Quality &amp; limits (stream playback)</h3>
+            <p class="fieldDescription">Limit resolution and file size for streams resolved by Torbox (and other sources when applicable). Only streams within these limits are offered in Jellyfin.</p>
+            <div class="fieldRow">
+                <label class="block">Max resolution</label>
+                <select id="MaxResolution">
+                    <option value="">Any</option>
+                    <option value="2160">4K (2160p)</option>
+                    <option value="1080">1080p</option>
+                    <option value="720">720p</option>
+                    <option value="480">480p</option>
+                </select>
+            </div>
+            <div class="fieldRow">
+                <label class="block">Max movie size (GB)</label>
+                <input type="number" id="MaxMovieSizeGb" min="0" step="0.5" placeholder="0 = no limit" />
+            </div>
+            <div class="fieldRow">
+                <label class="block">Max episode size (GB)</label>
+                <input type="number" id="MaxEpisodeSizeGb" min="0" step="0.1" placeholder="0 = no limit" />
+            </div>
+        </div>
+
+        <div class="setup-section">
+            <h3>Stream playback (watch in Jellyfin)</h3>
+            <p class="fieldDescription">Add a playable stream source for movies and episodes. Configure one or more: Torbox, DMM, or a custom API returning a direct stream URL.</p>
+            <div class="checkboxList checkboxList-withDescription">
+                <label>
+                    <input type="checkbox" id="EnableStreamPlayback" />
+                    <span>Enable stream playback</span>
+                </label>
+                <div class="fieldDescription">Show a "Stream (Torrent Links)" source when opening a movie or episode.</div>
+            </div>
+            <div class="fieldRow">
+                <label class="block">Custom stream API URL</label>
+                <input type="text" id="StreamApiUrl" placeholder="https://your-api.com/stream?title={title}&year={year}" style="width:100%;max-width:500px;" />
+                <div class="fieldDescription">Placeholders: {title}, {year}, {imdb}, {season}, {episode}. Response: JSON with url or streamUrl.</div>
+            </div>
+            <div class="fieldRow">
+                <label class="block">API key (optional, Bearer)</label>
+                <input type="password" id="StreamApiKey" placeholder="Optional" style="width:100%;max-width:300px;" />
+            </div>
+        </div>
+
+        <div class="setup-section">
+            <h3>Torbox</h3>
+            <p class="fieldDescription">Use <a href="https://torbox.app" target="_blank" rel="noopener">Torbox</a> to resolve streams by IMDb ID. Quality limits above apply to Torbox streams.</p>
+            <div class="checkboxList checkboxList-withDescription">
+                <label>
+                    <input type="checkbox" id="UseTorbox" />
+                    <span>Use Torbox for stream playback</span>
+                </label>
+            </div>
+            <div class="fieldRow">
+                <label class="block">Torbox API key</label>
+                <input type="password" id="TorboxApiKey" placeholder="From Torbox → Settings → API" style="width:100%;max-width:300px;" />
+            </div>
+            <div class="fieldRow">
+                <label class="block">Torbox API version</label>
+                <input type="text" id="TorboxApiVersion" placeholder="v1" style="width:100px;" />
+            </div>
+        </div>
+
+        <div class="setup-section">
+            <h3>Debrid Media Manager</h3>
+            <p class="fieldDescription">Use <a href="https://debridmediamanager.com" target="_blank" rel="noopener">Debrid Media Manager</a> (DMM). Log in at DMM, then copy your 12-character <strong>User ID</strong> from the Stremio addon install URL.</p>
+            <div class="checkboxList checkboxList-withDescription">
+                <label>
+                    <input type="checkbox" id="UseDmm" />
+                    <span>Use Debrid Media Manager for stream playback</span>
+                </label>
+            </div>
+            <div class="fieldRow">
+                <label class="block">DMM base URL</label>
+                <input type="text" id="DmmBaseUrl" placeholder="https://debridmediamanager.com" style="width:100%;max-width:400px;" />
+            </div>
+            <div class="fieldRow">
+                <label class="block">DMM User ID (12 characters)</label>
+                <input type="text" id="DmmUserId" placeholder="From DMM Stremio addon URL" style="width:100%;max-width:200px;" maxlength="20" />
+            </div>
+        </div>
+
+        <div class="setup-section">
+            <h3>External link sites</h3>
+            <p class="fieldDescription">Sites shown as external links on media pages. Placeholders: <code>{encoded}</code>, <code>{query}</code>, <code>{year}</code>.</p>
+            <div id="SitesContainer"></div>
+            <button type="button" class="btn btn-secondary" id="AddSiteBtn">Add site</button>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button type="button" class="btn btn-primary" id="SaveBtn">Save</button>
+        </div>
+    </div>
+
+    <script>
+        var TorrentLinksConfig = {
+            pluginUniqueId: 'a7b8c9d0-e1f2-3456-7890-abcdef123456'
+        };
+
+        function renderSites(sites) {
+            var container = document.getElementById('SitesContainer');
+            container.innerHTML = '';
+            (sites || []).forEach(function (site, index) {
+                var div = document.createElement('div');
+                div.className = 'section section-collapsible';
+                div.style.marginBottom = '12px';
+                div.style.padding = '8px';
+                div.style.border = '1px solid #333';
+                div.innerHTML = '<label><input type="checkbox" class="site-enabled" data-index="' + index + '" ' + (site.Enabled ? 'checked' : '') + ' /> ' + (site.Name || 'Site') + '</label>' +
+                    '<div style="margin-top:6px;"><input type="text" class="site-name" data-index="' + index + '" placeholder="Display name" value="' + (site.Name || '').replace(/"/g, '&quot;') + '" style="width:180px;margin-right:8px;" />' +
+                    '<input type="text" class="site-format" data-index="' + index + '" placeholder="URL format (use {encoded}, {query}, {year})" value="' + (site.UrlFormat || '').replace(/"/g, '&quot;') + '" style="flex:1;min-width:280px;" />' +
+                    '<button type="button" class="btn btn-secondary remove-site" data-index="' + index + '">Remove</button></div>';
+                container.appendChild(div);
+            });
+        }
+
+        function collectSites() {
+            var names = document.querySelectorAll('.site-name');
+            var formats = document.querySelectorAll('.site-format');
+            var enabled = document.querySelectorAll('.site-enabled');
+            var sites = [];
+            for (var i = 0; i < names.length; i++) {
+                sites.push({
+                    Name: names[i].value.trim(),
+                    UrlFormat: formats[i].value.trim(),
+                    Enabled: enabled[i].checked
+                });
+            }
+            return sites;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('SaveBtn').addEventListener('click', function () {
+                Dashboard.showLoadingMsg();
+                ApiClient.getPluginConfiguration(TorrentLinksConfig.pluginUniqueId).then(function (config) {
+                    config.Enabled = document.getElementById('Enabled').checked;
+                    config.EnableStreamPlayback = document.getElementById('EnableStreamPlayback').checked;
+                    config.StreamApiUrl = (document.getElementById('StreamApiUrl') && document.getElementById('StreamApiUrl').value) || '';
+                    config.StreamApiKey = (document.getElementById('StreamApiKey') && document.getElementById('StreamApiKey').value) || '';
+                    config.UseTorbox = document.getElementById('UseTorbox') && document.getElementById('UseTorbox').checked;
+                    config.TorboxApiKey = (document.getElementById('TorboxApiKey') && document.getElementById('TorboxApiKey').value) || '';
+                    config.TorboxApiVersion = (document.getElementById('TorboxApiVersion') && document.getElementById('TorboxApiVersion').value) || 'v1';
+                    config.UseDmm = document.getElementById('UseDmm') && document.getElementById('UseDmm').checked;
+                    config.DmmBaseUrl = (document.getElementById('DmmBaseUrl') && document.getElementById('DmmBaseUrl').value) || 'https://debridmediamanager.com';
+                    config.DmmUserId = (document.getElementById('DmmUserId') && document.getElementById('DmmUserId').value) || '';
+                    config.MaxResolution = (document.getElementById('MaxResolution') && document.getElementById('MaxResolution').value) || '';
+                    config.MaxMovieSizeGb = parseFloat(document.getElementById('MaxMovieSizeGb') && document.getElementById('MaxMovieSizeGb').value) || 0;
+                    config.MaxEpisodeSizeGb = parseFloat(document.getElementById('MaxEpisodeSizeGb') && document.getElementById('MaxEpisodeSizeGb').value) || 0;
+                    config.Sites = collectSites();
+                    return ApiClient.updatePluginConfiguration(TorrentLinksConfig.pluginUniqueId, config);
+                }).then(function (result) {
+                    Dashboard.processPluginConfigurationUpdateResult(result);
+                    Dashboard.hideLoadingMsg();
+                });
+            });
+
+            document.getElementById('AddSiteBtn').addEventListener('click', function () {
+                ApiClient.getPluginConfiguration(TorrentLinksConfig.pluginUniqueId).then(function (config) {
+                    config.Sites = config.Sites || [];
+                    config.Sites.push({ Name: '', UrlFormat: '', Enabled: true });
+                    renderSites(config.Sites);
+                });
+            });
+
+            document.getElementById('TorrentLinksConfigPage').addEventListener('pageshow', function () {
+                Dashboard.showLoadingMsg();
+                ApiClient.getPluginConfiguration(TorrentLinksConfig.pluginUniqueId).then(function (config) {
+                    document.getElementById('Enabled').checked = config.Enabled !== false;
+                    document.getElementById('EnableStreamPlayback').checked = config.EnableStreamPlayback === true;
+                    if (document.getElementById('StreamApiUrl')) document.getElementById('StreamApiUrl').value = config.StreamApiUrl || '';
+                    if (document.getElementById('StreamApiKey')) document.getElementById('StreamApiKey').value = config.StreamApiKey || '';
+                    if (document.getElementById('UseTorbox')) document.getElementById('UseTorbox').checked = config.UseTorbox === true;
+                    if (document.getElementById('TorboxApiKey')) document.getElementById('TorboxApiKey').value = config.TorboxApiKey || '';
+                    if (document.getElementById('TorboxApiVersion')) document.getElementById('TorboxApiVersion').value = config.TorboxApiVersion || 'v1';
+                    if (document.getElementById('UseDmm')) document.getElementById('UseDmm').checked = config.UseDmm === true;
+                    if (document.getElementById('DmmBaseUrl')) document.getElementById('DmmBaseUrl').value = config.DmmBaseUrl || 'https://debridmediamanager.com';
+                    if (document.getElementById('DmmUserId')) document.getElementById('DmmUserId').value = config.DmmUserId || '';
+                    if (document.getElementById('MaxResolution')) document.getElementById('MaxResolution').value = config.MaxResolution || '';
+                    if (document.getElementById('MaxMovieSizeGb')) document.getElementById('MaxMovieSizeGb').value = (config.MaxMovieSizeGb && config.MaxMovieSizeGb > 0) ? config.MaxMovieSizeGb : '';
+                    if (document.getElementById('MaxEpisodeSizeGb')) document.getElementById('MaxEpisodeSizeGb').value = (config.MaxEpisodeSizeGb && config.MaxEpisodeSizeGb > 0) ? config.MaxEpisodeSizeGb : '';
+                    renderSites(config.Sites || []);
+                    document.getElementById('TorrentLinksConfigPage').addEventListener('click', function (e) {
+                        if (e.target.classList.contains('remove-site')) {
+                            var idx = parseInt(e.target.getAttribute('data-index'), 10);
+                            var sites = collectSites();
+                            sites.splice(idx, 1);
+                            renderSites(sites);
+                        }
+                    });
+                    Dashboard.hideLoadingMsg();
+                });
+            });
+        });
+    </script>
+</body>
+</html>

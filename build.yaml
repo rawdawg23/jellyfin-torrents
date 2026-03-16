@@ -1,0 +1,17 @@
+---
+name: "TorrentLinks"
+guid: "a7b8c9d0-e1f2-3456-7890-abcdef123456"
+version: "1.0.0.0"
+targetAbi: "10.9.0.0"
+framework: "net9.0"
+overview: "Add external links to torrent and stream search sites for movies and series."
+description: >
+  Adds external links on media item pages (movies, series, episodes) so you can
+  open search pages on configurable torrent and stream indexer sites. Fully
+  configurable: add, remove, or edit sites and URL formats.
+category: "General"
+owner: "jellyfin"
+artifacts:
+  - "Jellyfin.Plugin.TorrentLinks.dll"
+changelog: >
+  Initial release: external URL provider and configurable torrent/stream site links.
