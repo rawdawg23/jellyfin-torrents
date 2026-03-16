@@ -9,6 +9,14 @@
     "imageUrl": "https://raw.githubusercontent.com/rawdawg23/jellyfin-torrents/main/assets/plugin-poster.svg",
     "versions": [
       {
+        "version": "1.0.0.2",
+        "targetAbi": "10.9.0.0",
+        "sourceUrl": "https://github.com/rawdawg23/jellyfin-torrents/releases/download/build-23161313791/Jellyfin.Plugin.TorrentLinks_1.0.0.2.zip",
+        "checksum": "1c08895fc0fbb9be5b4c5b676ea6fffe",
+        "changelog": "Release 1.0.0.2",
+        "timestamp": "2026-03-16T19:10:51Z"
+      },
+      {
         "version": "1.0.0.1",
         "targetAbi": "10.9.0.0",
         "sourceUrl": "https://github.com/rawdawg23/jellyfin-torrents/releases/download/build-23160696374/Jellyfin.Plugin.TorrentLinks_1.0.0.1.zip",
