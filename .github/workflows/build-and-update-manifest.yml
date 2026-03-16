@@ -20,16 +20,22 @@ jobs:
         with:
           dotnet-version: "9.0.x"
 
-      - name: Get version from csproj
+      - name: Get version and tag
         id: version
         run: |
-          # Read only from the plugin csproj (not Directory.Build.props)
-          VERSION=$(sed -n 's/.*<Version>\([^<]*\)<\/Version>.*/\1/p' Jellyfin.Plugin.TorrentLinks/Jellyfin.Plugin.TorrentLinks.csproj | head -1 | tr -d ' \r\n')
-          [ -z "$VERSION" ] && VERSION="1.0.0.0"
-          # Unique tag per run so we never conflict with existing tags/releases
+          set -e
+          VERSION="1.0.0.0"
+          if [ -f Jellyfin.Plugin.TorrentLinks/Jellyfin.Plugin.TorrentLinks.csproj ]; then
+            RAW=$(grep -o '<Version>[^<]*</Version>' Jellyfin.Plugin.TorrentLinks/Jellyfin.Plugin.TorrentLinks.csproj | head -1)
+            [ -n "$RAW" ] && VERSION="${RAW#<Version>}" && VERSION="${VERSION%</Version>}"
+          fi
           TAG="build-${{ github.run_id }}"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Version=$VERSION Tag=$TAG"
+
+      - name: Restore
+        run: dotnet restore Jellyfin.Plugin.TorrentLinks/Jellyfin.Plugin.TorrentLinks.csproj
 
       - name: Publish
         run: dotnet publish Jellyfin.Plugin.TorrentLinks/Jellyfin.Plugin.TorrentLinks.csproj -c Release -o publish --no-self-contained
@@ -42,7 +48,10 @@ jobs:
 
       - name: Compute MD5
         id: checksum
-        run: echo "checksum=$(md5sum Jellyfin.Plugin.TorrentLinks_${{ steps.version.outputs.version }}.zip | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+        run: |
+          ZIP="Jellyfin.Plugin.TorrentLinks_${{ steps.version.outputs.version }}.zip"
+          ls -la "$ZIP"
+          echo "checksum=$(md5sum "$ZIP" | cut -d' ' -f1)" >> $GITHUB_OUTPUT
 
       - name: Create or update release and upload zip
         uses: softprops/action-gh-release@v2
